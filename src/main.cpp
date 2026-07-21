@@ -33,7 +33,7 @@ unsigned int indices[] = {
     1,2,3  // second triangle
 };
 
-unsigned int vertexShader;
+unsigned int vertexShader, vertexShader2;
 unsigned int fragmentShader, fragmentShader2;
 int success;
 char infoLog[512];
@@ -45,6 +45,15 @@ const char *vertexShaderSource = "#version 330 core\n"
     " gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
     "}\0";
 
+const char *vertexShaderSource2 = "#version 330 core\n"
+    "layout (location = 0) in vec3 aPos;\n"
+    "out vec4 vertexColor;\n"
+    "void main()\n"
+    "{\n"
+    " gl_Position = vec4(aPos, 1.0);\n"
+    " vertexColor = vec4(0.5, 0.0, 0.0, 1.0);\n"
+    "}\0";
+
 const char *fragmentShaderSource = "#version 330 core\n"
     "out vec4 FragColor;\n"
     "void main()\n"
@@ -54,9 +63,10 @@ const char *fragmentShaderSource = "#version 330 core\n"
 
 const char *fragmentShaderSource2 = "#version 330 core\n"
     "out vec4 FragColor;\n"
+    "in vec4 vertexColor;\n"
     "void main()\n"
     "{\n"
-    "   FragColor = vec4(0.0f, 0.0f, 1.0f, 1.0f);\n"
+    "   FragColor = vertexColor;\n"
     "}\0";
 
 int main() {
@@ -93,6 +103,16 @@ int main() {
 
     if(!success){
         glGetShaderInfoLog(vertexShader,512,NULL, infoLog);
+        std::cout<<"ERROR::SHADER::VERTEX::COMPILATION_FAILED\n"<<infoLog<<std::endl;
+    }
+
+    vertexShader2 = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShader2,1,&vertexShaderSource2, NULL);
+    glCompileShader(vertexShader2);
+    glGetShaderiv(vertexShader2, GL_COMPILE_STATUS, &success);
+
+    if(!success){
+        glGetShaderInfoLog(vertexShader2,512,NULL, infoLog);
         std::cout<<"ERROR::SHADER::VERTEX::COMPILATION_FAILED\n"<<infoLog<<std::endl;
     }
 
@@ -137,10 +157,11 @@ int main() {
     // them, so we might free that memory. 
     //glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
+    glDeleteShader(vertexShader);
 
     unsigned int shaderProgram2;
     shaderProgram2 = glCreateProgram();
-    glAttachShader(shaderProgram2,vertexShader);
+    glAttachShader(shaderProgram2,vertexShader2);
     glAttachShader(shaderProgram2,fragmentShader2);
     glLinkProgram(shaderProgram2);
     glGetProgramiv(shaderProgram2, GL_LINK_STATUS, &success);
@@ -148,6 +169,8 @@ int main() {
         glGetProgramInfoLog(shaderProgram2, 512, NULL, infoLog);
         std::cout<<"ERROR::LINKING_FAILED\n"<<infoLog<<std::endl;
     }
+    glDeleteShader(vertexShader2);
+    glDeleteShader(fragmentShader2);
 
     // we can call OpenGL functions after GLAD init
     unsigned int VAO, VBO, EBO;
@@ -225,6 +248,10 @@ int main() {
     }
     /* float b[2] = {1.0, 1.0};
     std::cout<<sizeof(b)<<std::endl; */
+    int nrAttributes;
+    glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
+    std::cout << "Maximum nr of vertex attributes supported: " << nrAttributes<< std::endl;
+
     // free memory
     glDeleteBuffers(1, &VBO);
     glDeleteBuffers(1,&EBO);
