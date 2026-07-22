@@ -8,7 +8,7 @@ find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
 
 add_executable(${PROJECT_NAME}
-    src/uniforms_.cpp
+    src/exercise6_8.cpp
     src/glad.c
 )
 

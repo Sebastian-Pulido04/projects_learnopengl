@@ -1,0 +1,3 @@
+/home/sebas/projects/learnopengl/CMakeFiles/opengl_learn.dir
+/home/sebas/projects/learnopengl/CMakeFiles/edit_cache.dir
+/home/sebas/projects/learnopengl/CMakeFiles/rebuild_cache.dir
